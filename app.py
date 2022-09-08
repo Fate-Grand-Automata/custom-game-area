@@ -104,7 +104,7 @@ def bot():
             # as a Python webservice
             installation_id = git_integration.get_installation(
                 owner, repo_name
-            ).id.value
+            ).id
             git_connection = Github(
                 login_or_token=git_integration.get_access_token(
                     installation_id
