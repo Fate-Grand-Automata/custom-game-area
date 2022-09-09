@@ -1,3 +1,4 @@
+import base64
 import hashlib
 import hmac
 import os
@@ -11,9 +12,7 @@ import numpy as np
 
 app = Flask(__name__)
 app_id = int(os.getenv('APP_ID', '236258'))
-# Read the bot certificate
-with open('private_key.pem', 'r') as cert_file:
-    app_key = cert_file.read()
+app_key = base64.b64decode(os.getenv('SECRET_KEY')).decode('ascii')
 webhook_secret = os.getenv('WEBHOOK_SECRET')
 
 # Create an GitHub integration instance
