@@ -11,7 +11,12 @@ import numpy as np
 
 app = Flask(__name__)
 app_id = int(os.getenv('APP_ID', '236258'))
-app_key = os.getenv('PRIVATE_KEY')
+# Read the bot certificate
+with open(
+    os.path.normpath('/etc/secrets/private_key.pem'),
+    'r'
+) as cert_file:
+    app_key = cert_file.read()
 webhook_secret = os.getenv('WEBHOOK_SECRET')
 
 # Create an GitHub integration instance
