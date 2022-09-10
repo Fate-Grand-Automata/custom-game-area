@@ -89,6 +89,8 @@ def detectBars():
 
 @app.route("/", methods=['POST'])
 def bot():
+    print("Received request")
+
     if not validate_signature(request, webhook_secret):
         print("Payload secret is incorrect")
         return "", 400
@@ -101,6 +103,7 @@ def bot():
         return "", 400
 
     if payload['action'] != "created":
+        print("Action was not 'created'")
         return ""
 
     issue_number = int(payload['issue']['number'])
@@ -140,6 +143,10 @@ def bot():
             issue = repo.get_issue(issue_number)
             issue.create_comment(f"@{user} Your offsets are {output}")
             print("Created comment")
+        else:
+            print("No image found")
+    else:
+        print("Issue number is not relevant")
 
     return ""
 
