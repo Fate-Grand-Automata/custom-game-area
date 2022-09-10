@@ -15,6 +15,8 @@ app_id = int(os.getenv('APP_ID', '236258'))
 app_key = base64.b64decode(os.getenv('SECRET_KEY')).decode('ascii')
 webhook_secret = os.getenv('WEBHOOK_SECRET')
 
+black_threshold = int(os.getenv('THRESHOLD', 30))
+
 # Create an GitHub integration instance
 git_integration = GithubIntegration(
     app_id,
@@ -23,16 +25,26 @@ git_integration = GithubIntegration(
 
 
 def validate_signature(payload, secret):
+    if not payload:
+        return False
+
     # Get the signature from the payload
     signature_header = payload.headers['X-Hub-Signature']
+    if not signature_header:
+        return False
+
     sha_name, github_signature = signature_header.split('=')
     if sha_name != 'sha1':
-        print('ERROR: X-Hub-Signature in payload headers was not sha1=****')
+        print('X-Hub-Signature in payload headers was not sha1=****')
         return False
 
     # Create our own signature
     body = payload.data
-    local_signature = hmac.new(secret.encode('utf-8'), msg=body, digestmod=hashlib.sha1)
+    local_signature = hmac.new(
+        secret.encode('utf-8'),
+        msg=body,
+        digestmod=hashlib.sha1
+    )
 
     # See if they match
     return hmac.compare_digest(local_signature.hexdigest(), github_signature)
@@ -48,7 +60,7 @@ def detectBars():
 
     gray = ImageOps.grayscale(img)
     # Turn gray image into matrix of booleans where black == False
-    mask = np.array(gray) > 30
+    mask = np.array(gray) > black_threshold
     # For each column, check if any value is True.
     mask0 = mask.any(0)
     # Do the same thing for each row.
@@ -79,30 +91,42 @@ def detectBars():
 def bot():
     if not validate_signature(request, webhook_secret):
         print("Payload secret is incorrect")
-        return "Bad payload secret"
+        return "", 400
 
     # Get the event payload
     payload = request.json
 
-    if payload['action'] == "created" and int(payload['issue']['number']) == 1347:
+    if not payload:
+        print("No payload")
+        return "", 400
+
+    if payload['action'] != "created":
+        return ""
+
+    issue_number = int(payload['issue']['number'])
+    if issue_number in [1347, 1377]:
         comment = str(payload['comment']['body'])
         user = str(payload['comment']['user']['login'])
         match = re.search(r'http(s)?://[^ >]+?\.(png|jpeg|jpg)', comment)
         if match:
+            print("Found image")
             url = match.group()
             response = requests.get(url, allow_redirects=True)
             if response.status_code != 200:
-                return "Cannot download image"
+                print("Cannot download image")
+                return "", 500
 
-            open('image.jpg', 'wb').write(response.content)
+            with open('image.jpg', 'wb') as image:
+                image.write(response.content)
+
             output = detectBars()
+
+            os.remove('image.jpg')
 
             owner = payload['repository']['owner']['login']
             repo_name = payload['repository']['name']
 
             # Get a git connection as our bot
-            # Here is where we are getting the permission to talk as our bot and not
-            # as a Python webservice
             installation_id = git_integration.get_installation(
                 owner, repo_name
             ).id
@@ -113,12 +137,12 @@ def bot():
             )
             repo = git_connection.get_repo(f"{owner}/{repo_name}")
 
-            issue = repo.get_issue(number=payload['issue']['number'])
+            issue = repo.get_issue(issue_number)
             issue.create_comment(f"@{user} Your offsets are {output}")
-            return "ok"
+            print("Created comment")
 
-    return "ok"
+    return ""
 
 
 if __name__ == "__main__":
-    app.run(debug=False, port=5000)
+    app.run(debug=True, port=5000)
