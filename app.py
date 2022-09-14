@@ -23,8 +23,23 @@ git_integration = GithubIntegration(
     app_key,
 )
 
-print("List of secret files:")
-print(os.listdir("/env/secrets"))
+def list_files(startpath):
+    for root, dirs, files in os.walk(startpath):
+        level = root.replace(startpath, '').count(os.sep)
+        indent = ' ' * 4 * (level)
+        print('{}{}/'.format(indent, os.path.basename(root)))
+        subindent = ' ' * 4 * (level + 1)
+        for f in files:
+            print('{}{}'.format(subindent, f))
+
+if os.path.exists("/env"):
+    print("List of env files:")
+    list_files("/env")
+else:
+    print("/env does not exist")
+
+print("List of repo files:")
+list_files("/opt/render/project")
 
 def validate_signature(payload, secret):
     if not payload:
