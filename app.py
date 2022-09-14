@@ -15,7 +15,11 @@ logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 
 app = Flask(__name__)
 app_id = int(os.getenv('APP_ID', '236258'))
-app_key = base64.b64decode(os.getenv('SECRET_KEY')).decode('ascii')
+with open(
+    os.path.normpath('./private_key.pem'),
+    'r'
+) as cert_file:
+    app_key = cert_file.read()
 webhook_secret = os.getenv('WEBHOOK_SECRET')
 
 black_threshold = int(os.getenv('THRESHOLD', 30))
@@ -25,17 +29,6 @@ git_integration = GithubIntegration(
     app_id,
     app_key,
 )
-
-def list_files(startpath):
-    for root, dirs, files in os.walk(startpath):
-        level = root.replace(startpath, '').count(os.sep)
-        indent = ' ' * 4 * (level)
-        logging.info('{}{}/'.format(indent, os.path.basename(root)))
-        subindent = ' ' * 4 * (level + 1)
-        for f in files:
-            logging.info('{}{}'.format(subindent, f))
-
-list_files(".")
 
 def validate_signature(payload, secret):
     if not payload:
