@@ -1,6 +1,7 @@
 import base64
 import hashlib
 import hmac
+import logging
 import os
 import re
 import requests
@@ -9,6 +10,8 @@ from flask import Flask, request
 from github import Github, GithubIntegration
 from PIL import Image, ImageOps
 import numpy as np
+
+logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
 
 app = Flask(__name__)
 app_id = int(os.getenv('APP_ID', '236258'))
@@ -27,19 +30,12 @@ def list_files(startpath):
     for root, dirs, files in os.walk(startpath):
         level = root.replace(startpath, '').count(os.sep)
         indent = ' ' * 4 * (level)
-        print('{}{}/'.format(indent, os.path.basename(root)))
+        logging.info('{}{}/'.format(indent, os.path.basename(root)))
         subindent = ' ' * 4 * (level + 1)
         for f in files:
-            print('{}{}'.format(subindent, f))
+            logging.info('{}{}'.format(subindent, f))
 
-if os.path.exists("/env"):
-    print("List of env files:")
-    list_files("/env")
-else:
-    print("/env does not exist")
-
-print("List of repo files:")
-list_files("/opt/render/project")
+list_files(".")
 
 def validate_signature(payload, secret):
     if not payload:
@@ -52,7 +48,7 @@ def validate_signature(payload, secret):
 
     sha_name, github_signature = signature_header.split('=')
     if sha_name != 'sha1':
-        print('X-Hub-Signature in payload headers was not sha1=****')
+        logging.warning('X-Hub-Signature in payload headers was not sha1=****')
         return False
 
     # Create our own signature
@@ -103,24 +99,23 @@ def detectBars():
     # Remove any trailing ", "
     return output.rstrip(", ")
 
-
 @app.route("/", methods=['POST'])
 def bot():
-    print("Received request")
+    logging.info("Received request")
 
     if not validate_signature(request, webhook_secret):
-        print("Payload secret is incorrect")
+        logging.warning("Payload secret is incorrect")
         return "", 400
 
     # Get the event payload
     payload = request.json
 
     if not payload:
-        print("No payload")
+        logging.warning("No payload")
         return "", 400
 
     if payload['action'] != "created":
-        print("Action was not 'created'")
+        logging.info("Action was not 'created'")
         return ""
 
     issue_number = int(payload['issue']['number'])
@@ -129,11 +124,11 @@ def bot():
         user = str(payload['comment']['user']['login'])
         match = re.search(r'http(s)?://[^ >]+?\.(png|jpeg|jpg)', comment)
         if match:
-            print("Found image")
+            logging.info("Found image")
             url = match.group()
             response = requests.get(url, allow_redirects=True)
             if response.status_code != 200:
-                print("Cannot download image")
+                logging.warning("Cannot download image")
                 return "", 500
 
             with open('image.jpg', 'wb') as image:
@@ -159,11 +154,11 @@ def bot():
 
             issue = repo.get_issue(issue_number)
             issue.create_comment(f"@{user} Your offsets are {output}")
-            print("Created comment")
+            logging.info("Created comment")
         else:
-            print("No image found")
+            logging.info("No image found")
     else:
-        print("Issue number is not relevant")
+        logging.info("Issue number is not relevant")
 
     return ""
 
