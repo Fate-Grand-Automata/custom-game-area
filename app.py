@@ -11,7 +11,8 @@ from github import Github, GithubIntegration
 from PIL import Image, ImageOps
 import numpy as np
 
-logging.basicConfig(encoding='utf-8', level=logging.DEBUG)
+logging.basicConfig(encoding='utf-8', level=logging.INFO)
+logger = logging.getLogger("custom-game-area")
 
 app = Flask(__name__)
 app_id = int(os.getenv('APP_ID', '236258'))
@@ -41,7 +42,7 @@ def validate_signature(payload, secret):
 
     sha_name, github_signature = signature_header.split('=')
     if sha_name != 'sha1':
-        logging.warning('X-Hub-Signature in payload headers was not sha1=****')
+        logger.warning('X-Hub-Signature in payload headers was not sha1=****')
         return False
 
     # Create our own signature
@@ -94,21 +95,21 @@ def detectBars():
 
 @app.route("/", methods=['POST'])
 def bot():
-    logging.info("Received request")
+    logger.info("Received request")
 
     if not validate_signature(request, webhook_secret):
-        logging.warning("Payload secret is incorrect")
+        logger.warning("Payload secret is incorrect")
         return "", 400
 
     # Get the event payload
     payload = request.json
 
     if not payload:
-        logging.warning("No payload")
+        logger.warning("No payload")
         return "", 400
 
     if payload['action'] != "created":
-        logging.info("Action was not 'created'")
+        logger.info("Action was not 'created'")
         return ""
 
     issue_number = int(payload['issue']['number'])
@@ -117,11 +118,11 @@ def bot():
         user = str(payload['comment']['user']['login'])
         match = re.search(r'http(s)?://[^ >]+?\.(png|jpeg|jpg)', comment)
         if match:
-            logging.info("Found image")
+            logger.info("Found image")
             url = match.group()
             response = requests.get(url, allow_redirects=True)
             if response.status_code != 200:
-                logging.warning("Cannot download image")
+                logger.warning("Cannot download image")
                 return "", 500
 
             with open('image.jpg', 'wb') as image:
@@ -147,11 +148,11 @@ def bot():
 
             issue = repo.get_issue(issue_number)
             issue.create_comment(f"@{user} Your offsets are {output}")
-            logging.info("Created comment")
+            logger.info("Created comment")
         else:
-            logging.info("No image found")
+            logger.info("No image found")
     else:
-        logging.info("Issue number is not relevant")
+        logger.info("Issue number is not relevant")
 
     return ""
 
