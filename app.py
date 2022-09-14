@@ -23,6 +23,8 @@ git_integration = GithubIntegration(
     app_key,
 )
 
+print("List of secret files:")
+print(os.listdir("/env/secrets"))
 
 def validate_signature(payload, secret):
     if not payload:
