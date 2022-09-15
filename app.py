@@ -1,4 +1,3 @@
-import base64
 import hashlib
 import hmac
 import logging
@@ -30,6 +29,7 @@ git_integration = GithubIntegration(
     app_id,
     app_key,
 )
+
 
 def validate_signature(payload, secret):
     if not payload:
@@ -93,6 +93,7 @@ def detectBars():
     # Remove any trailing ", "
     return output.rstrip(", ")
 
+
 @app.route("/", methods=['POST'])
 def bot():
     logger.info("Received request")
@@ -147,7 +148,12 @@ def bot():
             repo = git_connection.get_repo(f"{owner}/{repo_name}")
 
             issue = repo.get_issue(issue_number)
-            issue.create_comment(f"@{user} Your offsets are {output}")
+            comment_to_post = f"@{user} "
+            if output:
+                comment_to_post += f"Your offsets are {output}"
+            else:
+                comment_to_post += "Could not detect any black bars in your image."
+            issue.create_comment(comment_to_post)
             logger.info("Created comment")
         else:
             logger.info("No image found")
