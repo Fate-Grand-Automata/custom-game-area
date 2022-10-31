@@ -1,6 +1,6 @@
 cryptography
 Flask==2.2.2
-numpy==1.23.2
-Pillow==9.2.0
-PyGithub==1.55
+numpy==1.23.4
+Pillow==9.3.0
+PyGithub==1.56
 waitress==2.1.2
