@@ -57,11 +57,6 @@ def validate_signature(payload, secret):
     return hmac.compare_digest(local_signature.hexdigest(), github_signature)
 
 
-def correctOffset(offset):
-    # offsets are off by one if they're not 0
-    return offset if offset == 0 else offset + 1
-
-
 def detectBars():
     img = Image.open('image.jpg')
 
@@ -74,11 +69,11 @@ def detectBars():
     mask1 = mask.any(1)
 
     # Get the index of the first True value
-    left = correctOffset(mask0.argmax())
+    left = mask0.argmax()
     # Get the index of the first True value starting from the right
-    right = correctOffset(mask0[::-1].argmax())
-    top = correctOffset(mask1.argmax())
-    bottom = correctOffset(mask1[::-1].argmax())
+    right = mask0[::-1].argmax()
+    top = mask1.argmax()
+    bottom = mask1[::-1].argmax()
 
     output = ""
     if left > 0:
