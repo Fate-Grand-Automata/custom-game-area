@@ -1,4 +1,5 @@
 image.jpg
 __pycache__
+.venv
 venv
 vendor
