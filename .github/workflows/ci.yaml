@@ -3,6 +3,13 @@ on:
   push:
     branches:
       - amazon-lambda
+
+env:
+  REGION: eu-central-1
+  REGISTRY: 231037907337.dkr.ecr.eu-central-1.amazonaws.com
+  IMAGE_NAME: fga-custom-game-area
+  FUNCTION_NAME: custom-game-area-docker
+
 jobs:
   build:
     runs-on: ubuntu-latest
@@ -14,18 +21,14 @@ jobs:
       with:
         aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
         aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        aws-region: 'eu-central-1'
+        aws-region: ${{ env.REGION }}
     - name: Login to Amazon ECR
       id: login-ecr
-      uses: aws-actions/amazon-ecr-login@aaf69d68aa3fb14c1d5a6be9ac61fe15b48453a2
+      uses: aws-actions/amazon-ecr-login@v1
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v2
     - name: Deploy code to Lambda
       shell: bash
       run: |
-        docker buildx build -t 231037907337.dkr.ecr.eu-central-1.amazonaws.com/fga-custom-game-area:latest --push .
-        aws lambda update-function-code --function-name custom-game-area --image-uri 231037907337.dkr.ecr.eu-central-1.amazonaws.com/fga-custom-game-area:latest
-      env:
-        AWS_ACCESS_KEY_ID: ${{ secrets.AWS_ACCESS_KEY_ID }}
-        AWS_SECRET_ACCESS_KEY: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
-        AWS_DEFAULT_REGION: 'eu-central-1'
+        docker buildx build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --push .
+        aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --image-uri ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
