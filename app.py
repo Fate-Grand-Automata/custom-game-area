@@ -28,7 +28,7 @@ git_integration = GithubIntegration(
 
 
 def validate_signature(payload, secret):
-    if not payload:
+    if (not payload) or (not payload['headers']):
         return False
 
     # Get the signature from the payload
