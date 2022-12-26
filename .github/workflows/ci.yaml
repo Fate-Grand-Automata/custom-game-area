@@ -31,4 +31,4 @@ jobs:
       shell: bash
       run: |
         docker buildx build -t ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest --push .
-        aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --image-uri ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest
+        aws lambda update-function-code --function-name ${{ env.FUNCTION_NAME }} --image-uri ${{ env.REGISTRY }}/${{ env.IMAGE_NAME }}:latest 2>&1 > /dev/null
