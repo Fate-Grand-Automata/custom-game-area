@@ -1,25 +1,21 @@
+import base64
 import hashlib
 import hmac
+import json
 import logging
 import os
 import re
 import requests
 
-from flask import Flask, request
 from github import Github, GithubIntegration
 from PIL import Image, ImageOps
 import numpy as np
 
-logging.basicConfig(encoding='utf-8', level=logging.INFO)
-logger = logging.getLogger("custom-game-area")
+logger = logging.getLogger()
+logger.setLevel(logging.INFO)
 
-app = Flask(__name__)
 app_id = int(os.getenv('APP_ID', '236258'))
-with open(
-    os.path.normpath('./private_key.pem'),
-    'r'
-) as cert_file:
-    app_key = cert_file.read()
+app_key = base64.b64decode(os.getenv('PRIVATE_KEY')).decode('ascii')
 webhook_secret = os.getenv('WEBHOOK_SECRET')
 
 black_threshold = int(os.getenv('THRESHOLD', 30))
@@ -36,7 +32,7 @@ def validate_signature(payload, secret):
         return False
 
     # Get the signature from the payload
-    signature_header = payload.headers['X-Hub-Signature']
+    signature_header = payload['headers'].get('X-Hub-Signature')
     if not signature_header:
         return False
 
@@ -46,10 +42,10 @@ def validate_signature(payload, secret):
         return False
 
     # Create our own signature
-    body = payload.data
+    body = payload['body']
     local_signature = hmac.new(
         secret.encode('utf-8'),
-        msg=body,
+        msg=body.encode('utf-8'),
         digestmod=hashlib.sha1
     )
 
@@ -58,7 +54,7 @@ def validate_signature(payload, secret):
 
 
 def detectBars():
-    img = Image.open('image.jpg')
+    img = Image.open('/tmp/image.jpg')
 
     gray = ImageOps.grayscale(img)
     # Turn gray image into matrix of booleans where black == False
@@ -89,16 +85,16 @@ def detectBars():
     return output.rstrip(", ")
 
 
-@app.route("/", methods=['POST'])
-def bot():
+def lambda_handler(event, context):
     logger.info("Received request")
+    logger.info(json.dumps(event))
 
-    if not validate_signature(request, webhook_secret):
+    if not validate_signature(event, webhook_secret):
         logger.warning("Payload secret is incorrect")
         return "", 400
 
     # Get the event payload
-    payload = request.json
+    payload = json.loads(event['body'])
 
     if not payload:
         logger.warning("No payload")
@@ -121,12 +117,12 @@ def bot():
                 logger.warning("Cannot download image")
                 return "", 500
 
-            with open('image.jpg', 'wb') as image:
+            with open('/tmp/image.jpg', 'wb') as image:
                 image.write(response.content)
 
             output = detectBars()
 
-            os.remove('image.jpg')
+            os.remove('/tmp/image.jpg')
 
             owner = payload['repository']['owner']['login']
             repo_name = payload['repository']['name']
@@ -156,7 +152,3 @@ def bot():
         logger.info("Issue number is not relevant")
 
     return ""
-
-
-if __name__ == "__main__":
-    app.run(debug=True, port=5000)
