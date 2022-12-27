@@ -12,6 +12,7 @@ jobs:
     container:
       image: public.ecr.aws/lambda/python:3.9
     steps:
+    - run: apt-get install git
     - uses: actions/checkout@v3
     - name: Use Node.js
       uses: actions/setup-node@v3
