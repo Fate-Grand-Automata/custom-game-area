@@ -1,0 +1,33 @@
+org: reconman
+app: custom-game-area
+service: custom-game-area
+
+frameworkVersion: '3'
+
+plugins:
+  - serverless-python-requirements
+
+custom:
+  pythonRequirements:
+    dockerizePip: non-linux
+
+provider:
+  name: aws
+  runtime: python3.9
+  region: eu-central-1
+  environment:
+    APP_ID: ${param:app-id}
+    PRIVATE_KEY: ${param:private-key}
+    WEBHOOK_SECRET: ${param:webhook-secret}
+
+functions:
+  custom-game-area:
+    handler: app.lambda_handler
+    timeout: 30
+    events:
+      # REST API endpoint (API Gateway v1)
+      - http:
+          # Path for this endpoint
+          path: custom-game-area
+          # HTTP method for this endpoint
+          method: post

@@ -1,0 +1,6 @@
+{
+  "devDependencies": {
+    "next": "^13.1.1",
+    "serverless-python-requirements": "^6.0.0"
+  }
+}
