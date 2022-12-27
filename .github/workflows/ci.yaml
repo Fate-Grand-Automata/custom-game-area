@@ -12,7 +12,7 @@ jobs:
     container:
       image: public.ecr.aws/lambda/python:3.9
     steps:
-    - run: sudo yum install git -y
+    - run: yum install git -y
     - uses: actions/checkout@v3
     - name: Use Node.js
       uses: actions/setup-node@v3
