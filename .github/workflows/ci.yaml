@@ -9,16 +9,14 @@ jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/lambda/python:3.9
     steps:
     - uses: actions/checkout@v3
     - name: Use Node.js
       uses: actions/setup-node@v3
       with:
         node-version: 16.x
-    - name: Set up Python 3.9
-      uses: actions/setup-python@v4
-      with:
-        python-version: 3.9
     - name: serverless deploy
       run: |
         npm i -g serverless@3.x
