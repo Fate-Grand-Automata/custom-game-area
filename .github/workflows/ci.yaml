@@ -21,6 +21,7 @@ jobs:
         python-version: 3.9
     - name: serverless deploy
       run: |
+        npm i -g serverless@3.x
         npm ci
         serverless deploy
       env:
