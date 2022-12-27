@@ -9,20 +9,19 @@ jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
-    strategy:
-      matrix:
-        node-version: [16.x]
     steps:
     - uses: actions/checkout@v3
-    - name: Use Node.js ${{ matrix.node-version }}
+    - name: Use Node.js
       uses: actions/setup-node@v3
       with:
-        node-version: ${{ matrix.node-version }}
-    - run: npm ci
-    - name: serverless deploy
-      uses: serverless/github-action@v3.0.0
+        node-version: 16.x
+    - name: Set up Python 3.9
+      uses: actions/setup-python@v4
       with:
-        args: deploy
+        python-version: 3.9
+    - name: serverless deploy
+      run: |
+        npm ci
+        serverless deploy
       env:
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
-        SLS_DEBUG: 1
