@@ -148,10 +148,12 @@ def lambda_handler(event, context):
                 comment_to_post += "Could not detect any black bars in your image."
 
             if any(phone in comment for phone in phones_with_system_settings):
-                comment_to_post += """\n\nHowever, your phone has
-                 [system settings]
-                 (https://github.com/Fate-Grand-Automata/FGA/wiki/Game-Area-detection#case-1-borders-around-fgo-are-black)
-                 to get rid of black bars. Please check those first before changing offsets."""
+                comment_to_post += (
+                    "\n\nHowever, your phone has "
+                    "[system settings](https://github.com/Fate-Grand-Automata/"
+                    "FGA/wiki/Game-Area-detection#case-1-borders-around-fgo-are-black) "
+                    "to get rid of black bars. Please check those first before changing offsets."
+                )
 
             issue.create_comment(comment_to_post)
             logger.info("Created comment")
