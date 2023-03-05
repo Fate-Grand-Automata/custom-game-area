@@ -10,7 +10,7 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
     container:
-      image: public.ecr.aws/lambda/python:3.10
+      image: public.ecr.aws/lambda/python:3.9
     steps:
     - run: yum install git -y
     - uses: actions/checkout@v3
