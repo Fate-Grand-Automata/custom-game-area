@@ -19,6 +19,7 @@ jobs:
         node-version: 16.x
     - name: serverless deploy
       run: |
+        pip install pipenv
         npm i -g serverless@3.x
         npm ci
         serverless deploy
