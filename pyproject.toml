@@ -1,0 +1,20 @@
+[tool.poetry]
+name = "custom-game-area"
+version = "0.1.0"
+description = ""
+authors = ["reconman <reconman@users.noreply.github.com>"]
+readme = "README.md"
+
+[tool.poetry.dependencies]
+python = "^3.9"
+flask = "^2.2"
+numpy = "^1.24"
+pillow = "^9.5"
+waitress = "^2.1"
+pygithub = "^1.58"
+cryptography = "^40.0"
+
+
+[build-system]
+requires = ["poetry-core"]
+build-backend = "poetry.core.masonry.api"
