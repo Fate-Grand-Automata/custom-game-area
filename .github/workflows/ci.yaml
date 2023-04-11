@@ -14,12 +14,13 @@ jobs:
     steps:
     - run: yum install git -y
     - uses: actions/checkout@v3
+    - name: Install poetry
+      uses: abatilo/actions-poetry@v2
     - uses: actions/setup-node@v3
       with:
         node-version: 16.x
     - name: serverless deploy
       run: |
-        pip install pipenv
         npm i -g serverless@3.x
         npm ci
         serverless deploy
