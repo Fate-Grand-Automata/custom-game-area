@@ -13,7 +13,7 @@ custom:
 
 provider:
   name: aws
-  runtime: python3.9
+  runtime: python3.10
   region: eu-central-1
   environment:
     APP_ID: ${param:app-id}
