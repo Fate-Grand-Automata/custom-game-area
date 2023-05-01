@@ -4,6 +4,10 @@ service: custom-game-area
 
 frameworkVersion: '3'
 
+package:
+  patterns:
+    - 'app.py'
+
 plugins:
   - serverless-python-requirements
 
