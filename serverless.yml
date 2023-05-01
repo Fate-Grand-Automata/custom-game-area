@@ -11,6 +11,7 @@ custom:
   pythonRequirements:
     dockerizePip: non-linux
     slim: true
+    layer: true
 
 provider:
   name: aws
@@ -25,6 +26,8 @@ functions:
   custom-game-area:
     handler: app.lambda_handler
     timeout: 30
+    layers:
+      - Ref: PythonRequirementsLambdaLayer
     events:
       # REST API endpoint (API Gateway v1)
       - http:
