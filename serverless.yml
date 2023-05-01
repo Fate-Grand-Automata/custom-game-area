@@ -6,7 +6,9 @@ frameworkVersion: '3'
 
 package:
   patterns:
-    - 'app.py'
+    - '!*.json'
+    - '!poetry.lock'
+    - '!pyproject.toml'
 
 plugins:
   - serverless-python-requirements
