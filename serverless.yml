@@ -10,7 +10,7 @@ package:
     - '!poetry.lock'
     - '!pyproject.toml'
     - '!tox.ini'
-    - 'README.md'
+    - '!README.md'
 
 plugins:
   - serverless-python-requirements
