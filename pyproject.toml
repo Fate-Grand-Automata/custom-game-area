@@ -6,7 +6,7 @@ authors = ["reconman <reconman@users.noreply.github.com>"]
 readme = "README.md"
 
 [tool.poetry.dependencies]
-python = "^3.9"
+python = "^3.10"
 numpy = "^1.24.3"
 pillow = "^9.5.0"
 pygithub = "^1.58.1"

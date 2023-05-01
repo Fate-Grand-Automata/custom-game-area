@@ -9,6 +9,8 @@ package:
     - '!*.json'
     - '!poetry.lock'
     - '!pyproject.toml'
+    - '!tox.ini'
+    - 'README.md'
 
 plugins:
   - serverless-python-requirements
