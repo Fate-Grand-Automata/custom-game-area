@@ -25,6 +25,7 @@ provider:
   name: aws
   runtime: python3.10
   region: eu-central-1
+  memorySize: 200
   environment:
     APP_ID: ${param:app-id}
     PRIVATE_KEY: ${param:private-key}
