@@ -110,7 +110,8 @@ def lambda_handler(event, context):
     if issue_number in [1347, 1377]:
         comment = str(payload['comment']['body'])
         user = str(payload['comment']['user']['login'])
-        match = re.search(r'http(s)?://[^ >]+?\.(png|jpeg|jpg)', comment)
+        match = (re.search(r'http(s)?://[^ >]+?\.(png|jpeg|jpg)', comment)
+                 or re.search(r'https://github\.com/Fate-Grand-Automata/FGA/assets/[-a-f0-9/]+', comment))
         if match:
             logger.info("Found image")
             url = match.group()
