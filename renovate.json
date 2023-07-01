@@ -4,6 +4,7 @@
     "config:base",
     "schedule:monthly"
   ],
+  "enabled": false,
   "ignorePresets": [":prHourlyLimit2"],
   "timezone": "Europe/Berlin",
   "lockFileMaintenance": {
