@@ -9,27 +9,29 @@ concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
-env:
-  ACTIONS_ALLOW_USE_UNSECURE_NODE_VERSION: true
-
 jobs:
   deploy:
     name: deploy
     runs-on: ubuntu-latest
     container:
       image: public.ecr.aws/lambda/python:3.10
+      volumes:
+        - /node20217:/__e/node20:rw,rshared
     steps:
-    - run: yum install git -y
-    - uses: actions/checkout@v3
+    - run: |
+        yum install git curl tar xz -y
+        curl -LO https://unofficial-builds.nodejs.org/download/release/v20.9.0/node-v20.9.0-linux-x64-glibc-217.tar.xz
+        tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /usr/local
+        ln -s /usr/local/bin /__e/node20/bin
+        ldd /__e/node20/bin/node
+    - uses: actions/checkout@v4
     - name: Install poetry
       uses: abatilo/actions-poetry@v2
-    - uses: actions/setup-node@v3
-      with:
-        node-version: 16.x
     - name: serverless deploy
       run: |
-        npm i -g serverless@3.x
+        npm i -g serverless@4.x
         npm ci
+        npm list -g
         serverless deploy
       env:
         SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}

@@ -2,7 +2,7 @@ org: reconman
 app: custom-game-area
 service: custom-game-area
 
-frameworkVersion: '3'
+frameworkVersion: '4'
 
 package:
   patterns:
