@@ -11,6 +11,7 @@ package:
     - '!pyproject.toml'
     - '!tox.ini'
     - '!README.md'
+    - '!node_modules'
 
 plugins:
   - serverless-python-requirements
