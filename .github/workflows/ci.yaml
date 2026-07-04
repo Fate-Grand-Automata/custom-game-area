@@ -14,19 +14,16 @@ jobs:
     name: deploy
     runs-on: ubuntu-latest
     container:
-      image: public.ecr.aws/lambda/python:3.10
-      volumes:
-        - /node20217:/__e/node20:rw,rshared
+      image: public.ecr.aws/sam/build-python3.14
     steps:
     - run: |
-        yum install git curl tar xz -y
-        curl -LO https://unofficial-builds.nodejs.org/download/release/v20.9.0/node-v20.9.0-linux-x64-glibc-217.tar.xz
-        tar -xf node-v20.9.0-linux-x64-glibc-217.tar.xz --strip-components 1 -C /usr/local
-        ln -s /usr/local/bin /__e/node20/bin
-        ldd /__e/node20/bin/node
-    - uses: actions/checkout@v4
+        curl -LO https://nodejs.org/dist/v24.2.0/node-v24.2.0-linux-x64.tar.xz
+        tar -xf node-v24.2.0-linux-x64.tar.xz --strip-components 1 -C /usr/local
+        node -v
+        npm -v
+    - uses: actions/checkout@v7
     - name: Install poetry
-      uses: abatilo/actions-poetry@v2
+      uses: abatilo/actions-poetry@v4
     - name: serverless deploy
       run: |
         npm i -g serverless@4.x
