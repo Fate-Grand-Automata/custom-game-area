@@ -12,3 +12,5 @@ jobs:
     uses: ./.github/workflows/_serverless.yml
     with:
       deploy: false
+    secrets:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
