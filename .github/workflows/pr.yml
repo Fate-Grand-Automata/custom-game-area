@@ -1,0 +1,14 @@
+name: Serverless CI
+
+on:
+  pull_request:
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  package:
+    uses: ./.github/workflows/_serverless.yml
+    with:
+      deploy: false
