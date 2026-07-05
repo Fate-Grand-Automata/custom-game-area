@@ -1,18 +1,16 @@
-name: Serverless deployment
+name: Serverless CI
 
 on:
-  push:
-    branches:
-      - serverless
+  pull_request:
 
 concurrency:
   group: ${{ github.workflow }}-${{ github.ref }}
   cancel-in-progress: true
 
 jobs:
-  deploy:
+  package:
     uses: ./.github/workflows/_serverless.yml
     with:
-      deploy: true
+      deploy: false
     secrets:
       SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
