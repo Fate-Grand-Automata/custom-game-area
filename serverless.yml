@@ -17,6 +17,7 @@ custom:
   pythonRequirements:
     dockerizePip: non-linux
     slim: true
+    strip: false
     layer: true
 
 provider:
