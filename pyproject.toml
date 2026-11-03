@@ -8,8 +8,8 @@ readme = "README.md"
 [tool.poetry.dependencies]
 python = "^3.14"
 numpy = "^2.5"
-pillow = "^12.3"
-pygithub = "^2.9"
+pillow = "^13.0"
+pygithub = "^2.10"
 
 
 [build-system]
