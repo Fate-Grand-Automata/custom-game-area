@@ -1,0 +1,43 @@
+name: Serverless (reusable)
+
+on:
+  workflow_call:
+    inputs:
+      deploy:
+        description: Whether to deploy (true) or only package/validate (false)
+        type: boolean
+        required: true
+    secrets:
+      SERVERLESS_ACCESS_KEY:
+        required: false
+
+jobs:
+  serverless:
+    name: ${{ inputs.deploy && 'deploy' || 'package' }}
+    runs-on: ubuntu-latest
+    container:
+      image: public.ecr.aws/sam/build-python3.14
+    env:
+      SERVERLESS_ACCESS_KEY: ${{ secrets.SERVERLESS_ACCESS_KEY }}
+    steps:
+    - run: |
+        curl -LO https://nodejs.org/dist/v24.2.0/node-v24.2.0-linux-x64.tar.xz
+        tar -xf node-v24.2.0-linux-x64.tar.xz --strip-components 1 -C /usr/local
+        node -v
+        npm -v
+    - uses: actions/checkout@v7
+    - name: Install poetry
+      uses: abatilo/actions-poetry@v2
+      with:
+        poetry-version: 1.8.4
+    - name: Install dependencies
+      run: |
+        npm i -g serverless@4.x
+        npm ci
+        npm list -g
+    - name: serverless package
+      if: ${{ !inputs.deploy }}
+      run: serverless package
+    - name: serverless deploy
+      if: ${{ inputs.deploy }}
+      run: serverless deploy
