@@ -25,6 +25,17 @@ provider:
   runtime: python3.14
   region: eu-central-1
   memorySize: 200
+  iam:
+    role:
+      statements:
+        # The generated role grants these log-group actions only on log-stream ARNs (`...:*`), which AWS stops
+        # honoring for them on 2027-04-26 (serverless/serverless#14073). Remove once Serverless grants them itself.
+        - Effect: Allow
+          Action:
+            - logs:CreateLogGroup
+            - logs:TagResource
+          Resource:
+            - !Sub arn:${AWS::Partition}:logs:${AWS::Region}:${AWS::AccountId}:log-group:/aws/lambda/${self:service}-${sls:stage}*
   environment:
     APP_ID: ${param:app-id}
     PRIVATE_KEY: ${param:private-key}

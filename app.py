@@ -7,7 +7,7 @@ import os
 import re
 import requests
 
-from github import Github, GithubIntegration
+from github import Auth, GithubIntegration
 from PIL import Image, ImageOps
 import numpy as np
 
@@ -23,10 +23,7 @@ black_threshold = int(os.getenv('THRESHOLD', 30))
 phones_with_system_settings = ["Samsung", "Huawei", "LG", "Xiaomi"]
 
 # Create an GitHub integration instance
-git_integration = GithubIntegration(
-    app_id,
-    app_key,
-)
+git_integration = GithubIntegration(auth=Auth.AppAuth(app_id, app_key))
 
 
 def validate_signature(payload, secret):
@@ -132,13 +129,11 @@ def lambda_handler(event, context):
             repo_name = payload['repository']['name']
 
             # Get a git connection as our bot
-            installation_id = git_integration.get_installation(
+            installation_id = git_integration.get_repo_installation(
                 owner, repo_name
             ).id
-            git_connection = Github(
-                login_or_token=git_integration.get_access_token(
-                    installation_id
-                ).token
+            git_connection = git_integration.get_github_for_installation(
+                installation_id
             )
             repo = git_connection.get_repo(f"{owner}/{repo_name}")
 
